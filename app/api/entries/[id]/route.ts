@@ -16,7 +16,7 @@ export async function DELETE(_request: NextRequest, context: RouteContext) {
 
   if (!id?.trim()) {
     return NextResponse.json(
-      { error: "id is required" },
+      { error: "Не указан идентификатор записи" },
       { status: HTTP_BAD_REQUEST }
     );
   }
@@ -39,7 +39,7 @@ export async function DELETE(_request: NextRequest, context: RouteContext) {
 
   if (!data) {
     return NextResponse.json(
-      { error: "Entry not found" },
+      { error: "Запись не найдена" },
       { status: HTTP_NOT_FOUND }
     );
   }

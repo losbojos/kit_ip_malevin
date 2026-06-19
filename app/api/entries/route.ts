@@ -60,38 +60,38 @@ export async function POST(request: NextRequest) {
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json({ error: "Invalid JSON" }, { status: HTTP_BAD_REQUEST });
+    return NextResponse.json({ error: "Некорректный JSON" }, { status: HTTP_BAD_REQUEST });
   }
 
   const { work_date, activity, volume, unit, executor } = body;
 
   if (!work_date?.trim()) {
     return NextResponse.json(
-      { error: "work_date is required" },
+      { error: "Укажите дату выполнения" },
       { status: HTTP_BAD_REQUEST }
     );
   }
   if (!activity?.trim()) {
     return NextResponse.json(
-      { error: "activity is required" },
+      { error: "Укажите вид работ" },
       { status: HTTP_BAD_REQUEST }
     );
   }
   if (!unit?.trim()) {
     return NextResponse.json(
-      { error: "unit is required" },
+      { error: "Укажите единицу измерения" },
       { status: HTTP_BAD_REQUEST }
     );
   }
   if (!executor?.trim()) {
     return NextResponse.json(
-      { error: "executor is required" },
+      { error: "Укажите исполнителя" },
       { status: HTTP_BAD_REQUEST }
     );
   }
   if (typeof volume !== "number" || volume <= MIN_VOLUME) {
     return NextResponse.json(
-      { error: "volume must be a number greater than 0" },
+      { error: "Объём должен быть числом больше 0" },
       { status: HTTP_BAD_REQUEST }
     );
   }
