@@ -1,36 +1,82 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Журнал работ
 
-## Getting Started
+Веб-приложение для учёта выполненных работ на строительном объекте: добавление записей, просмотр списка, фильтрация по дате, удаление.
 
-First, run the development server:
+## Стек
+
+- React 19, Next.js 16 (App Router), TypeScript, Tailwind CSS
+- Supabase (PostgreSQL)
+- API — Route Handlers (`app/api/entries`)
+
+### Почему такой стек
+
+- **Next.js** — фронтенд и API в одном проекте (и сервере), простой деплой на Vercel.
+- **Supabase (PostgreSQL)** — управляемая БД без поднятия своего сервера БД; для журнала с одной таблицей и простыми запросами хватает с запасом.
+- **Tailwind CSS** — быстрая вёрстка без отдельных CSS-файлов, достаточно для тестового.
+
+## Возможности
+
+- Просмотр записей с сортировкой по дате (сначала новые / старые)
+- Фильтр по диапазону дат
+- Добавление записи: дата, вид работ, объём, единица, исполнитель
+- Удаление записи
+
+## Требования
+
+- Node.js 20+
+- Аккаунт в [Supabase](https://supabase.com)
+- Git
+
+## Запуск локально
+
+1. Клонировать репозиторий и перейти в папку проекта:
+   ```bash
+   git clone <url-репозитория>
+   cd <папка-проекта>
+   ```
+2. Установить зависимости:
+   ```bash
+   npm install
+   ```
+3. Создать проект в [Supabase](https://supabase.com).
+4. В Supabase открыть **SQL Editor**, вставить и выполнить скрипт из [`database/create.sql`](./database/create.sql) (таблица `work_log`).
+5. В Supabase через меню **Integrations => Data API** включить **Enable Data API**.
+6. Скопировать `.env.example` в `.env.local` и заполнить переменные:
+
+```env
+SUPABASE_URL=https://<project>.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=<service_role_key>
+```
+SUPABASE_URL - это адрес вашего проекта БД в Supabase
+
+Ключ `service_role` берётся в Supabase: Settings => API Keys => Secret keys. 
+Не публикуйте его в клиентском коде и не коммитьте в репозиторий.
+
+   Не коммитьте `.env.local` — в нём секретный ключ с полным доступом к БД.
+
+7. Запустить dev-сервер:
+   ```bash
+   npm run dev
+   ```
+   
+8. Открыть в браузере [http://localhost:3000](http://localhost:3000).
+
+### Production-режим локально
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm run build
+npm start
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## API
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| Метод | Путь | Описание |
+|-------|------|----------|
+| `GET` | `/api/entries` | Список записей. Query: `dateFrom`, `dateTo`, `sort` (`asc` / `desc`) |
+| `POST` | `/api/entries` | Создание записи (JSON body) |
+| `DELETE` | `/api/entries/:id` | Удаление записи по `id` |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Демо
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Готовое приложение: **https://your-project.vercel.app** 
+Просто откройте ссылку в браузере.
