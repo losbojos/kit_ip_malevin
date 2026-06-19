@@ -1,0 +1,183 @@
+"use client";
+
+import { FormEvent, useState } from "react";
+import Panel from "@/app/components/Panel";
+import {
+  MIN_VOLUME,
+  MIN_VOLUME_INPUT,
+  MSG_SAVE_ENTRY_FAILED,
+} from "@/lib/constants";
+import { CreateWorkLogEntry } from "@/lib/types/work-log";
+import {
+  BTN_CLASS,
+  ERROR_CLASS,
+  INPUT_CLASS,
+  LABEL_CLASS,
+} from "@/lib/ui-classes";
+
+interface EntryFormProps {
+  onSubmit: (entry: CreateWorkLogEntry) => Promise<void>;
+}
+
+const emptyForm: CreateWorkLogEntry = {
+  work_date: "",
+  activity: "",
+  volume: 0,
+  unit: "",
+  executor: "",
+};
+
+export default function EntryForm({ onSubmit }: EntryFormProps) {
+  const [form, setForm] = useState<CreateWorkLogEntry>(emptyForm);
+  const [error, setError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  function updateField<K extends keyof CreateWorkLogEntry>(
+    field: K,
+    value: CreateWorkLogEntry[K]
+  ) {
+    setForm((prev) => ({ ...prev, [field]: value }));
+  }
+
+  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setError(null);
+
+    if (!form.work_date.trim()) {
+      setError("Укажите дату выполнения");
+      return;
+    }
+    if (!form.activity.trim()) {
+      setError("Укажите вид работ");
+      return;
+    }
+    if (!form.unit.trim()) {
+      setError("Укажите единицу измерения");
+      return;
+    }
+    if (!form.executor.trim()) {
+      setError("Укажите исполнителя");
+      return;
+    }
+    if (!form.volume || form.volume <= MIN_VOLUME) {
+      setError("Объём должен быть больше 0");
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      await onSubmit({
+        work_date: form.work_date.trim(),
+        activity: form.activity.trim(),
+        volume: form.volume,
+        unit: form.unit.trim(),
+        executor: form.executor.trim(),
+      });
+      setForm(emptyForm);
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : MSG_SAVE_ENTRY_FAILED;
+      setError(message);
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
+  return (
+    <Panel className="p-4">
+      <h2 className="mb-4 text-lg font-semibold">Новая запись</h2>
+
+      <form onSubmit={handleSubmit} className="grid gap-4 sm:grid-cols-2">
+        <div className="flex flex-col gap-1">
+          <label htmlFor="work_date" className={LABEL_CLASS}>
+            Дата выполнения
+          </label>
+          <input
+            id="work_date"
+            type="date"
+            value={form.work_date}
+            onChange={(e) => updateField("work_date", e.target.value)}
+            className={INPUT_CLASS}
+            required
+          />
+        </div>
+
+        <div className="flex flex-col gap-1">
+          <label htmlFor="executor" className={LABEL_CLASS}>
+            Исполнитель
+          </label>
+          <input
+            id="executor"
+            type="text"
+            value={form.executor}
+            onChange={(e) => updateField("executor", e.target.value)}
+            className={INPUT_CLASS}
+            placeholder="Иванов И.И."
+            required
+          />
+        </div>
+
+        <div className="flex flex-col gap-1 sm:col-span-2">
+          <label htmlFor="activity" className={LABEL_CLASS}>
+            Вид работ
+          </label>
+          <input
+            id="activity"
+            type="text"
+            value={form.activity}
+            onChange={(e) => updateField("activity", e.target.value)}
+            className={INPUT_CLASS}
+            placeholder="Кладка перегородок"
+            required
+          />
+        </div>
+
+        <div className="flex flex-col gap-1">
+          <label htmlFor="volume" className={LABEL_CLASS}>
+            Объём
+          </label>
+          <input
+            id="volume"
+            type="number"
+            min={MIN_VOLUME_INPUT}
+            step="any"
+            value={form.volume || ""}
+            onChange={(e) =>
+              updateField("volume", e.target.value === "" ? 0 : Number(e.target.value))
+            }
+            className={INPUT_CLASS}
+            required
+          />
+        </div>
+
+        <div className="flex flex-col gap-1">
+          <label htmlFor="unit" className={LABEL_CLASS}>
+            Единица
+          </label>
+          <input
+            id="unit"
+            type="text"
+            value={form.unit}
+            onChange={(e) => updateField("unit", e.target.value)}
+            className={INPUT_CLASS}
+            placeholder="м³"
+            required
+          />
+        </div>
+
+        {error && <p className={`${ERROR_CLASS} sm:col-span-2`}>{error}</p>}
+
+        <div className="sm:col-span-2">
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className={BTN_CLASS}
+          >
+            {isSubmitting ? "Сохранение..." : "Добавить"}
+          </button>
+        </div>
+      </form>
+    </Panel>
+  );
+}

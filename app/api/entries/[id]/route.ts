@@ -1,4 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
+import {
+  HTTP_BAD_REQUEST,
+  HTTP_NOT_FOUND,
+  HTTP_SERVER_ERROR,
+  WORK_LOG_TABLE,
+} from "@/lib/constants";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 type RouteContext = {
@@ -9,24 +15,33 @@ export async function DELETE(_request: NextRequest, context: RouteContext) {
   const { id } = await context.params;
 
   if (!id?.trim()) {
-    return NextResponse.json({ error: "id is required" }, { status: 400 });
+    return NextResponse.json(
+      { error: "id is required" },
+      { status: HTTP_BAD_REQUEST }
+    );
   }
 
   const supabase = createSupabaseServerClient();
 
   const { data, error } = await supabase
-    .from("work_log")
+    .from(WORK_LOG_TABLE)
     .delete()
     .eq("id", id)
     .select()
     .maybeSingle();
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json(
+      { error: error.message },
+      { status: HTTP_SERVER_ERROR }
+    );
   }
 
   if (!data) {
-    return NextResponse.json({ error: "Entry not found" }, { status: 404 });
+    return NextResponse.json(
+      { error: "Entry not found" },
+      { status: HTTP_NOT_FOUND }
+    );
   }
 
   return NextResponse.json(data);
