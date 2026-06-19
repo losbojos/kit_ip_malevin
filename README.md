@@ -31,7 +31,9 @@
 
 1. Клонировать репозиторий и перейти в папку проекта:
    ```bash
-   git clone <url-репозитория>
+   git clone https://github.com/losbojos/kit_ip_malevin
+   или
+   git clone git@github.com:losbojos/kit_ip_malevin.git
    cd <папка-проекта>
    ```
 2. Установить зависимости:
@@ -78,5 +80,4 @@ npm start
 
 ## Демо
 
-Готовое приложение: **https://your-project.vercel.app** 
-Просто откройте ссылку в браузере.
+Готовое приложение: **https://kit-ip-malevin.vercel.app/** - Просто откройте ссылку в браузере.
