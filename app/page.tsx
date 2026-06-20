@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import EntryFilters, { EntryFiltersValue } from "@/app/components/EntryFilters";
-import EntryForm from "@/app/components/EntryForm";
+import EntryFormDialog from "@/app/components/EntryFormDialog";
 import EntryTable from "@/app/components/EntryTable";
 import {
   ENTRIES_API_PATH,
@@ -17,7 +17,7 @@ import {
   SORT_DESC,
 } from "@/lib/constants";
 import { CreateWorkLogEntry, WorkLogEntry } from "@/lib/types/work-log";
-import { ERROR_BOX_CLASS } from "@/lib/ui-classes";
+import { ERROR_BOX_CLASS, BTN_CLASS } from "@/lib/ui-classes";
 
 const defaultFilters: EntryFiltersValue = {
   dateFrom: "",
@@ -30,6 +30,7 @@ export default function Home() {
   const [filters, setFilters] = useState<EntryFiltersValue>(defaultFilters);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isFormOpen, setIsFormOpen] = useState(false);
 
   const loadEntries = useCallback(async () => {
     setIsLoading(true);
@@ -97,26 +98,43 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-full bg-zinc-100">
-      <main className="mx-auto flex w-full max-w-5xl flex-col gap-4 p-4">
-        <header>
-          <h1 className="text-xl font-semibold">Журнал работ</h1>
-          <p className="text-sm text-zinc-700">
-            Учёт выполненных работ на объекте
+    <div className="min-h-screen bg-zinc-100">
+      <main className="mx-auto w-full max-w-5xl p-4">
+        <div className="sticky top-0 z-10 -mx-4 space-y-4 bg-zinc-100 px-4 pb-4">
+          <header>
+            <h1 className="text-xl font-semibold">Журнал работ</h1>
+            <div className="flex items-center justify-between gap-4">
+              <p className="text-sm text-zinc-700">
+                Учёт выполненных работ на объекте
+              </p>
+              <button
+                type="button"
+                onClick={() => setIsFormOpen(true)}
+                className={`${BTN_CLASS} shrink-0`}
+              >
+                Добавить
+              </button>
+            </div>
+          </header>
+
+          <EntryFilters value={filters} onChange={setFilters} />
+
+          <p className={error ? ERROR_BOX_CLASS : "text-sm text-zinc-700"}>
+            {isLoading
+              ? "Загрузка..."
+              : error
+                ? error
+                : `Загружено записей: ${entries.length}`}
           </p>
-        </header>
+        </div>
 
-        <EntryFilters value={filters} onChange={setFilters} />
+        <EntryTable entries={entries} onDelete={handleDelete} />
 
-        <EntryForm onSubmit={handleCreate} />
-
-        {error && <p className={ERROR_BOX_CLASS}>{error}</p>}
-
-        {isLoading ? (
-          <p className="text-sm text-zinc-700">Загрузка...</p>
-        ) : (
-          <EntryTable entries={entries} onDelete={handleDelete} />
-        )}
+        <EntryFormDialog
+          open={isFormOpen}
+          onClose={() => setIsFormOpen(false)}
+          onSubmit={handleCreate}
+        />
       </main>
     </div>
   );

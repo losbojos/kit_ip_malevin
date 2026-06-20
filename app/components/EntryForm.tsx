@@ -1,7 +1,6 @@
 "use client";
 
 import { FormEvent, useState } from "react";
-import Panel from "@/app/components/Panel";
 import {
   MIN_VOLUME,
   MIN_VOLUME_INPUT,
@@ -17,6 +16,7 @@ import {
 
 interface EntryFormProps {
   onSubmit: (entry: CreateWorkLogEntry) => Promise<void>;
+  onCancel: () => void;
 }
 
 const emptyForm: CreateWorkLogEntry = {
@@ -27,7 +27,7 @@ const emptyForm: CreateWorkLogEntry = {
   executor: "",
 };
 
-export default function EntryForm({ onSubmit }: EntryFormProps) {
+export default function EntryForm({ onSubmit, onCancel }: EntryFormProps) {
   const [form, setForm] = useState<CreateWorkLogEntry>(emptyForm);
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -75,6 +75,7 @@ export default function EntryForm({ onSubmit }: EntryFormProps) {
         executor: form.executor.trim(),
       });
       setForm(emptyForm);
+      onCancel();
     } catch (err) {
       const message =
         err instanceof Error ? err.message : MSG_SAVE_ENTRY_FAILED;
@@ -84,11 +85,14 @@ export default function EntryForm({ onSubmit }: EntryFormProps) {
     }
   }
 
-  return (
-    <Panel className="p-4">
-      <h2 className="mb-4 text-lg font-semibold">Новая запись</h2>
+  function handleCancel() {
+    setForm(emptyForm);
+    setError(null);
+    onCancel();
+  }
 
-      <form onSubmit={handleSubmit} className="grid gap-4 sm:grid-cols-2">
+  return (
+    <form onSubmit={handleSubmit} className="grid gap-4 sm:grid-cols-2">
         <div className="flex flex-col gap-1">
           <label htmlFor="work_date" className={LABEL_CLASS}>
             Дата выполнения
@@ -168,16 +172,23 @@ export default function EntryForm({ onSubmit }: EntryFormProps) {
 
         {error && <p className={`${ERROR_CLASS} sm:col-span-2`}>{error}</p>}
 
-        <div className="sm:col-span-2">
+        <div className="flex justify-center gap-4 sm:col-span-2">
+          <button
+            type="button"
+            onClick={handleCancel}
+            disabled={isSubmitting}
+            className={BTN_CLASS}
+          >
+            Отменить
+          </button>
           <button
             type="submit"
             disabled={isSubmitting}
             className={BTN_CLASS}
           >
-            {isSubmitting ? "Сохранение..." : "Добавить"}
+            {isSubmitting ? "Сохранение..." : "Сохранить"}
           </button>
         </div>
       </form>
-    </Panel>
   );
 }

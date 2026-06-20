@@ -77,7 +77,7 @@ export default function EntryFilters({ value, onChange }: EntryFiltersProps) {
         onClick={() =>
           onChange({ dateFrom: "", dateTo: "", sort: SORT_DESC })
         }
-        className={BTN_CLASS}
+        className={`${BTN_CLASS} ml-auto`}
       >
         Сбросить
       </button>
