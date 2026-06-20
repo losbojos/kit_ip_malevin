@@ -19,16 +19,21 @@ interface EntryFormProps {
   onCancel: () => void;
 }
 
-const emptyForm: CreateWorkLogEntry = {
-  work_date: "",
-  activity: "",
-  volume: 0,
-  unit: "",
-  executor: "",
-};
+function createEmptyForm(): CreateWorkLogEntry {
+  const now = new Date();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
+  return {
+    work_date: `${now.getFullYear()}-${month}-${day}`,
+    activity: "",
+    volume: 0,
+    unit: "",
+    executor: "",
+  };
+}
 
 export default function EntryForm({ onSubmit, onCancel }: EntryFormProps) {
-  const [form, setForm] = useState<CreateWorkLogEntry>(emptyForm);
+  const [form, setForm] = useState(createEmptyForm);
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -74,7 +79,7 @@ export default function EntryForm({ onSubmit, onCancel }: EntryFormProps) {
         unit: form.unit.trim(),
         executor: form.executor.trim(),
       });
-      setForm(emptyForm);
+      setForm(createEmptyForm());
       onCancel();
     } catch (err) {
       const message =
@@ -86,109 +91,109 @@ export default function EntryForm({ onSubmit, onCancel }: EntryFormProps) {
   }
 
   function handleCancel() {
-    setForm(emptyForm);
+    setForm(createEmptyForm());
     setError(null);
     onCancel();
   }
 
   return (
     <form onSubmit={handleSubmit} className="grid gap-4 sm:grid-cols-2">
-        <div className="flex flex-col gap-1">
-          <label htmlFor="work_date" className={LABEL_CLASS}>
-            Дата выполнения
-          </label>
-          <input
-            id="work_date"
-            type="date"
-            value={form.work_date}
-            onChange={(e) => updateField("work_date", e.target.value)}
-            className={INPUT_CLASS}
-            required
-          />
-        </div>
+      <div className="flex flex-col gap-1">
+        <label htmlFor="work_date" className={LABEL_CLASS}>
+          Дата выполнения
+        </label>
+        <input
+          id="work_date"
+          type="date"
+          value={form.work_date}
+          onChange={(e) => updateField("work_date", e.target.value)}
+          className={INPUT_CLASS}
+          required
+        />
+      </div>
 
-        <div className="flex flex-col gap-1">
-          <label htmlFor="executor" className={LABEL_CLASS}>
-            Исполнитель
-          </label>
-          <input
-            id="executor"
-            type="text"
-            value={form.executor}
-            onChange={(e) => updateField("executor", e.target.value)}
-            className={INPUT_CLASS}
-            placeholder="Иванов И.И."
-            required
-          />
-        </div>
+      <div className="flex flex-col gap-1">
+        <label htmlFor="executor" className={LABEL_CLASS}>
+          Исполнитель
+        </label>
+        <input
+          id="executor"
+          type="text"
+          value={form.executor}
+          onChange={(e) => updateField("executor", e.target.value)}
+          className={INPUT_CLASS}
+          placeholder="Иванов И.И."
+          required
+        />
+      </div>
 
-        <div className="flex flex-col gap-1 sm:col-span-2">
-          <label htmlFor="activity" className={LABEL_CLASS}>
-            Вид работ
-          </label>
-          <input
-            id="activity"
-            type="text"
-            value={form.activity}
-            onChange={(e) => updateField("activity", e.target.value)}
-            className={INPUT_CLASS}
-            placeholder="Кладка перегородок"
-            required
-          />
-        </div>
+      <div className="flex flex-col gap-1 sm:col-span-2">
+        <label htmlFor="activity" className={LABEL_CLASS}>
+          Вид работ
+        </label>
+        <input
+          id="activity"
+          type="text"
+          value={form.activity}
+          onChange={(e) => updateField("activity", e.target.value)}
+          className={INPUT_CLASS}
+          placeholder="Кладка перегородок"
+          required
+        />
+      </div>
 
-        <div className="flex flex-col gap-1">
-          <label htmlFor="volume" className={LABEL_CLASS}>
-            Объём
-          </label>
-          <input
-            id="volume"
-            type="number"
-            min={MIN_VOLUME_INPUT}
-            step="any"
-            value={form.volume || ""}
-            onChange={(e) =>
-              updateField("volume", e.target.value === "" ? 0 : Number(e.target.value))
-            }
-            className={INPUT_CLASS}
-            required
-          />
-        </div>
+      <div className="flex flex-col gap-1">
+        <label htmlFor="volume" className={LABEL_CLASS}>
+          Объём
+        </label>
+        <input
+          id="volume"
+          type="number"
+          min={MIN_VOLUME_INPUT}
+          step="any"
+          value={form.volume || ""}
+          onChange={(e) =>
+            updateField("volume", e.target.value === "" ? 0 : Number(e.target.value))
+          }
+          className={INPUT_CLASS}
+          required
+        />
+      </div>
 
-        <div className="flex flex-col gap-1">
-          <label htmlFor="unit" className={LABEL_CLASS}>
-            Единица
-          </label>
-          <input
-            id="unit"
-            type="text"
-            value={form.unit}
-            onChange={(e) => updateField("unit", e.target.value)}
-            className={INPUT_CLASS}
-            placeholder="м³"
-            required
-          />
-        </div>
+      <div className="flex flex-col gap-1">
+        <label htmlFor="unit" className={LABEL_CLASS}>
+          Единица
+        </label>
+        <input
+          id="unit"
+          type="text"
+          value={form.unit}
+          onChange={(e) => updateField("unit", e.target.value)}
+          className={INPUT_CLASS}
+          placeholder="м³"
+          required
+        />
+      </div>
 
-        {error && <p className={`${ERROR_CLASS} sm:col-span-2`}>{error}</p>}
+      {error && <p className={`${ERROR_CLASS} sm:col-span-2`}>{error}</p>}
 
-        <div className="flex justify-center gap-4 sm:col-span-2">
-          <button
-            type="button"
-            onClick={handleCancel}
-            disabled={isSubmitting}
-            className={BTN_CLASS}
-          >
-            Отменить
-          </button>
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className={BTN_CLASS}
-          >
-            {isSubmitting ? "Сохранение..." : "Сохранить"}
-          </button>
-        </div>
-      </form>
+      <div className="flex justify-center gap-4 sm:col-span-2">
+        <button
+          type="button"
+          onClick={handleCancel}
+          disabled={isSubmitting}
+          className={BTN_CLASS}
+        >
+          Отменить
+        </button>
+        <button
+          type="submit"
+          disabled={isSubmitting}
+          className={BTN_CLASS}
+        >
+          {isSubmitting ? "Сохранение..." : "Сохранить"}
+        </button>
+      </div>
+    </form>
   );
 }
