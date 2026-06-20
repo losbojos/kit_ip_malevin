@@ -25,6 +25,33 @@ const defaultFilters: EntryFiltersValue = {
   sort: SORT_DESC,
 };
 
+function isValidFilterDate(value: string): boolean {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+
+  const [y, m, d] = value.split("-").map(Number);
+  const date = new Date(y, m - 1, d); // месяц в Date с нуля 1
+  // JS переносит несуществующие даты (31.02 на март) — сверяем, что дата не изменилась
+  return (
+    date.getFullYear() === y &&
+    date.getMonth() === m - 1 &&
+    date.getDate() === d
+  );
+}
+
+/** null — фильтр по датам корректен */
+function validateFilterDates(dateFrom: string, dateTo: string): string | null {
+  if (dateFrom && !isValidFilterDate(dateFrom)) {
+    return "Некорректная дата «с»";
+  }
+  if (dateTo && !isValidFilterDate(dateTo)) {
+    return "Некорректная дата «по»";
+  }
+  if (dateFrom && dateTo && dateFrom > dateTo) {
+    return "Дата «с» не может быть позже даты «по»";
+  }
+  return null;
+}
+
 export default function Home() {
   const [entries, setEntries] = useState<WorkLogEntry[]>([]);
   const [filters, setFilters] = useState<EntryFiltersValue>(defaultFilters);
@@ -37,9 +64,18 @@ export default function Home() {
     setError(null);
 
     try {
+      const dateFrom = filters.dateFrom.trim();
+      const dateTo = filters.dateTo.trim();
+
+      const validationError = validateFilterDates(dateFrom, dateTo);
+      if (validationError) {
+        setError(validationError);
+        return;
+      }
+
       const params = new URLSearchParams();
-      if (filters.dateFrom) params.set(QUERY_DATE_FROM, filters.dateFrom);
-      if (filters.dateTo) params.set(QUERY_DATE_TO, filters.dateTo);
+      if (dateFrom) params.set(QUERY_DATE_FROM, dateFrom);
+      if (dateTo) params.set(QUERY_DATE_TO, dateTo);
       params.set(QUERY_SORT, filters.sort);
 
       const query = params.toString();
