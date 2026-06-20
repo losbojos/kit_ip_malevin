@@ -7,6 +7,7 @@ import EntryTable from "@/app/components/EntryTable";
 import {
   ENTRIES_API_PATH,
   entryByIdPath,
+  LOAD_ENTRIES_DELAY,
   MSG_DELETE_ENTRY_FAILED,
   MSG_LOAD_ENTRIES_FAILED,
   MSG_SAVE_ENTRY_FAILED,
@@ -61,7 +62,8 @@ export default function Home() {
   }, [filters]);
 
   useEffect(() => {
-    loadEntries();
+    const timer = setTimeout(loadEntries, LOAD_ENTRIES_DELAY);
+    return () => clearTimeout(timer);
   }, [loadEntries]);
 
   async function handleCreate(entry: CreateWorkLogEntry) {

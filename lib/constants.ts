@@ -36,3 +36,6 @@ export const HTTP_SERVER_ERROR = 500;
 export const MSG_LOAD_ENTRIES_FAILED = "Не удалось загрузить записи";
 export const MSG_SAVE_ENTRY_FAILED = "Не удалось сохранить запись";
 export const MSG_DELETE_ENTRY_FAILED = "Не удалось удалить запись";
+
+/** Задержка загрузки записей во избежание множественных вызовов при смене фильтра */
+export const LOAD_ENTRIES_DELAY = 1000;
