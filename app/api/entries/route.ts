@@ -3,7 +3,6 @@ import {
   HTTP_BAD_REQUEST,
   HTTP_CREATED,
   HTTP_SERVER_ERROR,
-  MIN_VOLUME,
   QUERY_DATE_FROM,
   QUERY_DATE_TO,
   QUERY_SORT,
@@ -13,6 +12,7 @@ import {
   WORK_LOG_TABLE,
 } from "@/lib/constants";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { validateWorkLogEntry } from "@/lib/validateWorkLogEntry";
 
 export async function GET(request: NextRequest) {
   const { searchParams } = request.nextUrl;
@@ -46,16 +46,8 @@ export async function GET(request: NextRequest) {
   return NextResponse.json(data);
 }
 
-type CreateEntryBody = {
-  work_date?: string;
-  activity?: string;
-  volume?: number;
-  unit?: string;
-  executor?: string;
-};
-
 export async function POST(request: NextRequest) {
-  let body: CreateEntryBody;
+  let body: unknown;
 
   try {
     body = await request.json();
@@ -63,35 +55,10 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Некорректный JSON" }, { status: HTTP_BAD_REQUEST });
   }
 
-  const { work_date, activity, volume, unit, executor } = body;
-
-  if (!work_date?.trim()) {
+  const validation = validateWorkLogEntry(body);
+  if (!validation.ok) {
     return NextResponse.json(
-      { error: "Укажите дату выполнения" },
-      { status: HTTP_BAD_REQUEST }
-    );
-  }
-  if (!activity?.trim()) {
-    return NextResponse.json(
-      { error: "Укажите вид работ" },
-      { status: HTTP_BAD_REQUEST }
-    );
-  }
-  if (!unit?.trim()) {
-    return NextResponse.json(
-      { error: "Укажите единицу измерения" },
-      { status: HTTP_BAD_REQUEST }
-    );
-  }
-  if (!executor?.trim()) {
-    return NextResponse.json(
-      { error: "Укажите исполнителя" },
-      { status: HTTP_BAD_REQUEST }
-    );
-  }
-  if (typeof volume !== "number" || volume <= MIN_VOLUME) {
-    return NextResponse.json(
-      { error: "Объём должен быть числом больше 0" },
+      { error: validation.error },
       { status: HTTP_BAD_REQUEST }
     );
   }
@@ -100,13 +67,7 @@ export async function POST(request: NextRequest) {
 
   const { data, error } = await supabase
     .from(WORK_LOG_TABLE)
-    .insert({
-      work_date: work_date.trim(),
-      activity: activity.trim(),
-      volume,
-      unit: unit.trim(),
-      executor: executor.trim(),
-    })
+    .insert(validation.data)
     .select()
     .single();
 

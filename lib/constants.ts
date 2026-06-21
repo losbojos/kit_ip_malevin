@@ -30,12 +30,15 @@ export const MIN_VOLUME_INPUT = 0.01;
 export const HTTP_BAD_REQUEST = 400;
 export const HTTP_NOT_FOUND = 404;
 export const HTTP_CREATED = 201;
+export const HTTP_OK = 200;
 export const HTTP_SERVER_ERROR = 500;
 
 /** Сообщения об ошибках */
 export const MSG_LOAD_ENTRIES_FAILED = "Не удалось загрузить записи";
 export const MSG_SAVE_ENTRY_FAILED = "Не удалось сохранить запись";
 export const MSG_DELETE_ENTRY_FAILED = "Не удалось удалить запись";
+export const MSG_UPDATE_ENTRY_FAILED = "Не удалось обновить запись";
+export const MSG_ENTRY_NOT_FOUND = "Запись не найдена";
 
 /** Задержка загрузки записей во избежание множественных вызовов при смене фильтра */
 export const LOAD_ENTRIES_DELAY = 1000;

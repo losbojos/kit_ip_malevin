@@ -6,7 +6,7 @@ import {
   MIN_VOLUME_INPUT,
   MSG_SAVE_ENTRY_FAILED,
 } from "@/lib/constants";
-import { CreateWorkLogEntry } from "@/lib/types/work-log";
+import { WorkLogEntryData, WorkLogEntryDataWithId } from "@/lib/types/WorkLogEntryData";
 import {
   BTN_CLASS,
   ERROR_CLASS,
@@ -15,11 +15,12 @@ import {
 } from "@/lib/ui-classes";
 
 interface EntryFormProps {
-  onSubmit: (entry: CreateWorkLogEntry) => Promise<void>;
+  initialEntry?: WorkLogEntryDataWithId | null;
+  onSubmit: (entry: WorkLogEntryData) => Promise<void>;
   onCancel: () => void;
 }
 
-function createEmptyForm(): CreateWorkLogEntry {
+function createEmptyForm(): WorkLogEntryData {
   const now = new Date();
   const month = String(now.getMonth() + 1).padStart(2, "0");
   const day = String(now.getDate()).padStart(2, "0");
@@ -32,14 +33,21 @@ function createEmptyForm(): CreateWorkLogEntry {
   };
 }
 
-export default function EntryForm({ onSubmit, onCancel }: EntryFormProps) {
-  const [form, setForm] = useState(createEmptyForm);
+
+export default function EntryForm({
+  initialEntry,
+  onSubmit,
+  onCancel,
+}: EntryFormProps) {
+  const [form, setForm] = useState<WorkLogEntryData>(() =>
+    initialEntry ?? createEmptyForm()
+  );
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  function updateField<K extends keyof CreateWorkLogEntry>(
+  function updateField<K extends keyof WorkLogEntryData>(
     field: K,
-    value: CreateWorkLogEntry[K]
+    value: WorkLogEntryData[K]
   ) {
     setForm((prev) => ({ ...prev, [field]: value }));
   }
@@ -79,7 +87,9 @@ export default function EntryForm({ onSubmit, onCancel }: EntryFormProps) {
         unit: form.unit.trim(),
         executor: form.executor.trim(),
       });
-      setForm(createEmptyForm());
+      if (!initialEntry) {
+        setForm(createEmptyForm());
+      }
       onCancel();
     } catch (err) {
       const message =
@@ -91,7 +101,9 @@ export default function EntryForm({ onSubmit, onCancel }: EntryFormProps) {
   }
 
   function handleCancel() {
-    setForm(createEmptyForm());
+    if (!initialEntry) {
+      setForm(createEmptyForm());
+    }
     setError(null);
     onCancel();
   }

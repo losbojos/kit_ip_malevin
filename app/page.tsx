@@ -11,12 +11,13 @@ import {
   MSG_DELETE_ENTRY_FAILED,
   MSG_LOAD_ENTRIES_FAILED,
   MSG_SAVE_ENTRY_FAILED,
+  MSG_UPDATE_ENTRY_FAILED,
   QUERY_DATE_FROM,
   QUERY_DATE_TO,
   QUERY_SORT,
   SORT_DESC,
 } from "@/lib/constants";
-import { CreateWorkLogEntry, WorkLogEntry } from "@/lib/types/work-log";
+import { WorkLogEntryData, WorkLogEntryDataWithId } from "@/lib/types/WorkLogEntryData";
 import { ERROR_BOX_CLASS, BTN_CLASS } from "@/lib/ui-classes";
 
 const defaultFilters: EntryFiltersValue = {
@@ -53,11 +54,14 @@ function validateFilterDates(dateFrom: string, dateTo: string): string | null {
 }
 
 export default function Home() {
-  const [entries, setEntries] = useState<WorkLogEntry[]>([]);
+  const [entries, setEntries] = useState<WorkLogEntryDataWithId[]>([]);
   const [filters, setFilters] = useState<EntryFiltersValue>(defaultFilters);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [editingEntry, setEditingEntry] = useState<WorkLogEntryDataWithId | null>(
+    null
+  );
 
   const loadEntries = useCallback(async () => {
     setIsLoading(true);
@@ -103,7 +107,7 @@ export default function Home() {
     return () => clearTimeout(timer);
   }, [loadEntries]);
 
-  async function handleCreate(entry: CreateWorkLogEntry) {
+  async function handleCreate(entry: WorkLogEntryData) {
     const response = await fetch(ENTRIES_API_PATH, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -117,6 +121,30 @@ export default function Home() {
     }
 
     await loadEntries();
+  }
+
+  async function handleUpdate(id: string, entry: WorkLogEntryData) {
+    const response = await fetch(entryByIdPath(id), {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(entry),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error ?? MSG_UPDATE_ENTRY_FAILED);
+    }
+
+    await loadEntries();
+  }
+
+  async function handleSave(entry: WorkLogEntryData) {
+    if (editingEntry) {
+      await handleUpdate(editingEntry.id, entry);
+    } else {
+      await handleCreate(entry);
+    }
   }
 
   async function handleDelete(id: string) {
@@ -133,6 +161,21 @@ export default function Home() {
     await loadEntries();
   }
 
+  function openCreateForm() {
+    setEditingEntry(null);
+    setIsFormOpen(true);
+  }
+
+  function openEditForm(entry: WorkLogEntryDataWithId) {
+    setEditingEntry(entry);
+    setIsFormOpen(true);
+  }
+
+  function closeForm() {
+    setIsFormOpen(false);
+    setEditingEntry(null);
+  }
+
   return (
     <div className="min-h-screen bg-zinc-100">
       <main className="mx-auto w-full max-w-5xl p-4">
@@ -145,7 +188,7 @@ export default function Home() {
               </p>
               <button
                 type="button"
-                onClick={() => setIsFormOpen(true)}
+                onClick={openCreateForm}
                 className={`${BTN_CLASS} shrink-0`}
               >
                 Добавить
@@ -164,12 +207,17 @@ export default function Home() {
           </p>
         </div>
 
-        <EntryTable entries={entries} onDelete={handleDelete} />
+        <EntryTable
+          entries={entries}
+          onEdit={openEditForm}
+          onDelete={handleDelete}
+        />
 
         <EntryFormDialog
           open={isFormOpen}
-          onClose={() => setIsFormOpen(false)}
-          onSubmit={handleCreate}
+          entry={editingEntry}
+          onClose={closeForm}
+          onSubmit={handleSave}
         />
       </main>
     </div>

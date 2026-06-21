@@ -3,11 +3,12 @@
 import { useState } from "react";
 import Panel from "@/app/components/Panel";
 import { MSG_DELETE_ENTRY_FAILED } from "@/lib/constants";
-import { WorkLogEntry } from "@/lib/types/work-log";
+import { WorkLogEntryDataWithId } from "@/lib/types/WorkLogEntryData";
 import { BTN_CLASS, ERROR_BOX_CLASS } from "@/lib/ui-classes";
 
 interface EntryTableProps {
-  entries: WorkLogEntry[];
+  entries: WorkLogEntryDataWithId[];
+  onEdit: (entry: WorkLogEntryDataWithId) => void;
   onDelete: (id: string) => Promise<void>;
 }
 
@@ -17,7 +18,7 @@ function formatDate(date: string): string {
   return `${day}.${month}.${year}`;
 }
 
-export default function EntryTable({ entries, onDelete }: EntryTableProps) {
+export default function EntryTable({ entries, onEdit, onDelete }: EntryTableProps) {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -72,14 +73,24 @@ export default function EntryTable({ entries, onDelete }: EntryTableProps) {
                 </td>
                 <td className="p-4">{entry.executor}</td>
                 <td className="p-4">
-                  <button
-                    type="button"
-                    onClick={() => handleDelete(entry.id)}
-                    disabled={deletingId === entry.id}
-                    className={BTN_CLASS}
-                  >
-                    {deletingId === entry.id ? "Удаление..." : "Удалить"}
-                  </button>
+                  <div className="flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      onClick={() => onEdit(entry)}
+                      disabled={deletingId === entry.id}
+                      className={BTN_CLASS}
+                    >
+                      Изменить
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleDelete(entry.id)}
+                      disabled={deletingId === entry.id}
+                      className={BTN_CLASS}
+                    >
+                      {deletingId === entry.id ? "Удаление..." : "Удалить"}
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}

@@ -1,4 +1,4 @@
-export interface CreateWorkLogEntry {
+export interface WorkLogEntryData {
   work_date: string;
   activity: string;
   volume: number;
@@ -6,6 +6,6 @@ export interface CreateWorkLogEntry {
   executor: string;
 }
 
-export interface WorkLogEntry extends CreateWorkLogEntry {
+export interface WorkLogEntryDataWithId extends WorkLogEntryData {
   id: string;
 }

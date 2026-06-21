@@ -1,17 +1,19 @@
 "use client";
 
 import EntryForm from "@/app/components/EntryForm";
-import { CreateWorkLogEntry } from "@/lib/types/work-log";
+import { WorkLogEntryData, WorkLogEntryDataWithId } from "@/lib/types/WorkLogEntryData";
 import { PANEL_CLASS } from "@/lib/ui-classes";
 
 interface EntryFormDialogProps {
   open: boolean;
+  entry?: WorkLogEntryDataWithId | null;
   onClose: () => void;
-  onSubmit: (entry: CreateWorkLogEntry) => Promise<void>;
+  onSubmit: (entry: WorkLogEntryData) => Promise<void>;
 }
 
 export default function EntryFormDialog({
   open,
+  entry,
   onClose,
   onSubmit,
 }: EntryFormDialogProps) {
@@ -25,9 +27,11 @@ export default function EntryFormDialog({
         className={`${PANEL_CLASS} w-full max-w-lg p-4`}
       >
         <h2 className="mb-4 text-lg font-semibold">
-          Новая запись
+          {entry ? "Редактирование записи" : "Новая запись"}
         </h2>
         <EntryForm
+          key={entry?.id ?? "new"}
+          initialEntry={entry}
           onSubmit={onSubmit}
           onCancel={onClose}
         />
