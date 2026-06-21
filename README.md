@@ -19,6 +19,7 @@
 - Просмотр записей с сортировкой по дате (сначала новые / старые)
 - Фильтр по диапазону дат
 - Добавление записи: дата, вид работ, объём, единица, исполнитель
+- Вид работ — выбор из справочника или произвольный ввод (в журнале хранится текст)
 - Редактирование существующей записи
 - Удаление записи
 
@@ -42,7 +43,7 @@
    npm install
    ```
 3. Создать проект в [Supabase](https://supabase.com).
-4. В Supabase открыть **SQL Editor**, вставить и выполнить скрипт из [`database/create.sql`](./database/create.sql) (таблица `work_log`).
+4. В Supabase открыть **SQL Editor**, вставить и выполнить скрипт из [`database/create.sql`](./database/create.sql) (таблицы `work_log` и `work_activity_catalog`).
 5. В Supabase через меню **Integrations => Data API** включить **Enable Data API**.
 6. Скопировать `.env.example` в `.env.local` и заполнить переменные:
 
@@ -79,6 +80,7 @@ npm start
 | `POST` | `/api/entries` | Создание записи (JSON body) |
 | `PATCH` | `/api/entries/:id` | Обновление записи (JSON body, все поля обязательны) |
 | `DELETE` | `/api/entries/:id` | Удаление записи по `id` |
+| `GET` | `/api/work-activities` | Справочник видов работ |
 
 ## Демо
 

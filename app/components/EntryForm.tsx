@@ -6,6 +6,7 @@ import {
   MIN_VOLUME_INPUT,
   MSG_SAVE_ENTRY_FAILED,
 } from "@/lib/constants";
+import { WorkActivityCatalogItem } from "@/lib/types/WorkActivityCatalogItem";
 import { WorkLogEntryData, WorkLogEntryDataWithId } from "@/lib/types/WorkLogEntryData";
 import {
   BTN_CLASS,
@@ -16,6 +17,7 @@ import {
 
 interface EntryFormProps {
   initialEntry?: WorkLogEntryDataWithId | null;
+  activities: WorkActivityCatalogItem[];
   onSubmit: (entry: WorkLogEntryData) => Promise<void>;
   onCancel: () => void;
 }
@@ -36,6 +38,7 @@ function createEmptyForm(): WorkLogEntryData {
 
 export default function EntryForm({
   initialEntry,
+  activities,
   onSubmit,
   onCancel,
 }: EntryFormProps) {
@@ -146,12 +149,20 @@ export default function EntryForm({
         <input
           id="activity"
           type="text"
+          list="activity-options"
           value={form.activity}
           onChange={(e) => updateField("activity", e.target.value)}
           className={INPUT_CLASS}
-          placeholder="Кладка перегородок"
+          placeholder="Начните вводить или выберите из списка"
           required
         />
+        {activities.length > 0 && (
+          <datalist id="activity-options">
+            {activities.map((item) => (
+              <option key={item.id} value={item.name} />
+            ))}
+          </datalist>
+        )}
       </div>
 
       <div className="flex flex-col gap-1">

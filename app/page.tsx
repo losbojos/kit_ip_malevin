@@ -9,6 +9,7 @@ import {
   entryByIdPath,
   LOAD_ENTRIES_DELAY,
   MSG_DELETE_ENTRY_FAILED,
+  MSG_LOAD_ACTIVITIES_FAILED,
   MSG_LOAD_ENTRIES_FAILED,
   MSG_SAVE_ENTRY_FAILED,
   MSG_UPDATE_ENTRY_FAILED,
@@ -16,8 +17,10 @@ import {
   QUERY_DATE_TO,
   QUERY_SORT,
   SORT_DESC,
+  WORK_ACTIVITIES_API_PATH,
 } from "@/lib/constants";
 import { WorkLogEntryData, WorkLogEntryDataWithId } from "@/lib/types/WorkLogEntryData";
+import { WorkActivityCatalogItem } from "@/lib/types/WorkActivityCatalogItem";
 import { ERROR_BOX_CLASS, BTN_CLASS } from "@/lib/ui-classes";
 
 const defaultFilters: EntryFiltersValue = {
@@ -62,6 +65,30 @@ export default function Home() {
   const [editingEntry, setEditingEntry] = useState<WorkLogEntryDataWithId | null>(
     null
   );
+  const [activities, setActivities] = useState<WorkActivityCatalogItem[]>([]);
+
+  useEffect(() => {
+    async function loadActivities() {
+      try {
+        const response = await fetch(WORK_ACTIVITIES_API_PATH);
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error ?? MSG_LOAD_ACTIVITIES_FAILED);
+        }
+
+        setActivities(data);
+      } catch (err) {
+        setActivities([]);
+        console.warn(
+          MSG_LOAD_ACTIVITIES_FAILED,
+          err instanceof Error ? err.message : err
+        );
+      }
+    }
+
+    loadActivities();
+  }, []);
 
   const loadEntries = useCallback(async () => {
     setIsLoading(true);
@@ -216,6 +243,7 @@ export default function Home() {
         <EntryFormDialog
           open={isFormOpen}
           entry={editingEntry}
+          activities={activities}
           onClose={closeForm}
           onSubmit={handleSave}
         />

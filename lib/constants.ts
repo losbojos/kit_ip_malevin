@@ -7,6 +7,10 @@ export const WORK_LOG_DATE_COLUMN = "work_date";
 /** Базовый путь API журнала */
 export const ENTRIES_API_PATH = "/api/entries";
 
+/** Справочник видов работ */
+export const WORK_ACTIVITY_CATALOG_TABLE = "work_activity_catalog";
+export const WORK_ACTIVITIES_API_PATH = "/api/work-activities";
+
 export function entryByIdPath(id: string): string {
   return `${ENTRIES_API_PATH}/${id}`;
 }
@@ -35,6 +39,7 @@ export const HTTP_SERVER_ERROR = 500;
 
 /** Сообщения об ошибках */
 export const MSG_LOAD_ENTRIES_FAILED = "Не удалось загрузить записи";
+export const MSG_LOAD_ACTIVITIES_FAILED = "Не удалось загрузить справочник видов работ";
 export const MSG_SAVE_ENTRY_FAILED = "Не удалось сохранить запись";
 export const MSG_DELETE_ENTRY_FAILED = "Не удалось удалить запись";
 export const MSG_UPDATE_ENTRY_FAILED = "Не удалось обновить запись";
